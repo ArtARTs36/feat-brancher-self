@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+    feat-brancher-app: &app
+        build:
+            context: ./app/
+            dockerfile: ./build/docker/Dockerfile
+        volumes:
+            - "./storage/logs/:/app/storage/logs"
+            - "./storage/bootstrap-cache/:/app/bootstrap/cache"
+            - "${PWD}/storage/database.sqlite:/app/storage/database.sqlite"
+            - "${PWD}/config/app/discovery.php:/app/config/discovery.php"
+            - "./config/.ssh/:/root/.ssh/"
+            - "${PWD}/.env:/app/.env"
+
+    feat-brancher-web:
+        <<: *app
+        command: rr serve
+        ports:
+            - "${DOCKER_WEB_HTTP_PORT}:8080"
+
+    feat-brancher-cron:
+        <<: *app
+        command: "/app/artisan schedule:work"
+        restart: always
+
+    feat-brancher-queue-task-fill:
+        <<: *app
+        command: "/app/artisan queue:work database --queue=task_fill --tries=5 --sleep=5"
+        restart: always
