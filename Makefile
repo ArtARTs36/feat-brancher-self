@@ -1,7 +1,7 @@
 .PHONY: init install build run shell migrate
 
 init:
-	git clone https://github.com/ArtARTs36/feat-brancher app
+	git clone git@github.com:ArtARTs36/feat-brancher.git app
 	cp app/config/discovery.php config/app/discovery.php
 	cp app/.env.example	.env
 	touch ./storage/database.sqlite
@@ -29,4 +29,4 @@ migrate:
 	docker-compose run feat-brancher-web sh -c "php artisan migrate"
 
 copy-ssh:
-	cp ~/.ssh ./config/.ssh/
+	cp -r ~/.ssh/* ./config/.ssh/
