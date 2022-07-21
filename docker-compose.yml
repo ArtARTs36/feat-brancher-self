@@ -8,10 +8,11 @@ services:
         volumes:
             - "./storage/logs/:/app/storage/logs"
             - "./storage/bootstrap-cache/:/app/bootstrap/cache"
-            - "${PWD}/storage/database.sqlite:/app/storage/database.sqlite"
             - "${PWD}/config/app/discovery.php:/app/config/discovery.php"
             - "./config/.ssh/:/root/.ssh/"
             - "${PWD}/.env:/app/.env"
+        depends_on:
+            - feat-brancher-db
 
     feat-brancher-web:
         <<: *app
@@ -28,3 +29,14 @@ services:
         <<: *app
         command: "/app/artisan queue:work database --queue=task_fill --tries=5 --sleep=5"
         restart: always
+
+    feat-brancher-db:
+        image: postgres:12
+        restart: always
+        environment:
+            POSTGRES_USER: "${DB_USERNAME}"
+            POSTGRES_PASSWORD: "${DB_PASSWORD}"
+            POSTGRES_DB: "${DB_DATABASE}"
+        volumes:
+            - "${PWD}/storage/postgres:/var/lib/postgresql/data"
+
